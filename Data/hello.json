@@ -1,0 +1,31 @@
+{
+    "name": "hello",
+    "states": [
+        "q1",
+        "q2"
+    ],
+    "alphabet": [
+        "a",
+        "b"
+    ],
+    "start_state": "q1",
+    "final_states": [],
+    "transitions": {
+        "q1": {
+            "a": [
+                "q2"
+            ],
+            "b": [
+                "q1"
+            ]
+        },
+        "q2": {
+            "a": [
+                "q2"
+            ],
+            "b": [
+                "q2"
+            ]
+        }
+    }
+}
