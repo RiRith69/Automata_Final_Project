@@ -1,0 +1,121 @@
+# Define your FA data first:
+# fa_on_off = FiniteAutomaton(
+#     id = fa_id,
+#     name = 'off/on switch',
+#     states = ['off', 'on'],
+#     alphabet = ['0', '1'],
+#     start_state = 'off',
+#     final_states = ['on',],
+#     transitions = [
+#         ['off', '1', 'on'],
+#         ['on', '0', 'off']
+#     ]
+# )
+
+# fa_even_zeros = FiniteAutomaton(
+#     id= fa_id,
+#     name='Even number of 0s',
+#     states=['even', 'odd'],
+#     alphabet=['0', '1'],
+#     start_state='even',
+#     final_states=['even'],
+#     transitions=[
+#         ['even', '0', 'odd'],
+#         ['even', '1', 'even'],
+#         ['odd', '0', 'even'],
+#         ['odd', '1', 'odd']
+#     ]
+# )
+
+# # Call to save the FA metadata:
+# # saving_fa(fa_on_off.name, fa_on_off.states, fa_on_off.alphabet, fa_on_off.start_state, fa_on_off.final_states)
+# # saving_fa_transitions(2, fa_on_off.transitions) 
+
+
+# saving_fa(fa_even_zeros.name, fa_even_zeros.states, fa_even_zeros.alphabet, fa_even_zeros.start_state, fa_even_zeros.final_states)
+# saving_fa_transitions(fa_even_zeros.id, fa_even_zeros.transitions) 
+
+fa_ends_11 = FiniteAutomaton(
+    id=fa_id,
+    name='Ends with 11',
+    states=['start', 'seen_1', 'seen_11'],
+    alphabet=['0', '1'],
+    start_state='start',
+    final_states=['seen_11'],
+    transitions=[
+        ['start', '0', 'start'],
+        ['start', '1', 'seen_1'],
+        ['seen_1', '0', 'seen_1'],
+        ['seen_1', '1', 'seen_11'],
+        ['seen_11', '0', 'start'],
+        ['seen_11', '1', 'seen_1']
+    ]
+)
+
+saving_fa(fa_ends_11.name, fa_ends_11.states, fa_ends_11.alphabet, fa_ends_11.start_state, fa_ends_11.final_states)
+saving_fa_transitions(fa_ends_11.id, fa_ends_11.transitions) 
+
+# fa_password = FiniteAutomaton(
+#     id= fa_id,
+#     name='Simple Lock: ab',
+#     states=['locked', 'a_seen', 'unlocked'],
+#     alphabet=['a', 'b'],
+#     start_state='locked',
+#     final_states=['unlocked'],
+#     transitions=[
+#         ['locked', 'a', 'a_seen'],
+#         ['locked', 'b', 'locked'],
+#         ['a_seen', 'a', 'a_seen'],
+#         ['a_seen', 'b', 'unlocked'],
+#         ['unlocked', 'a', 'a_seen'],
+#         ['unlocked', 'b', 'locked']
+#     ]
+# )
+
+# saving_fa(fa_password.name, fa_password.states, fa_password.alphabet, fa_password.start_state, fa_password.final_states)
+# saving_fa_transitions(fa_password.id, fa_password.transitions) 
+
+# fa_triple_ones = FiniteAutomaton(
+#     id=5,
+#     name='Detect "111"',
+#     states=['start', 'one', 'two', 'three'],
+#     alphabet=['0', '1'],
+#     start_state='start',
+#     final_states=['three'],
+#     transitions=[
+#         ['start', '1', 'one'],
+#         ['start', '0', 'start'],
+#         ['one', '1', 'two'],
+#         ['one', '0', 'start'],
+#         ['two', '1', 'three'],
+#         ['two', '0', 'start'],
+#         ['three', '0', 'three'],
+#         ['three', '1', 'three']
+#     ]
+# )
+
+# saving_fa(fa_triple_ones.name, fa_triple_ones.states, fa_triple_ones.alphabet, fa_triple_ones.start_state, fa_triple_ones.final_states)
+# saving_fa_transitions(fa_triple_ones.id, fa_triple_ones.transitions) 
+
+# fa_empty = FiniteAutomaton(
+#     id=6,
+#     name='Empty string only',
+#     states=['q0'],
+#     alphabet=['a', 'b'],
+#     start_state='q0',
+#     final_states=['q0'],
+#     transitions=[]
+# )
+
+# saving_fa(fa_empty.name, fa_empty.states, fa_empty.alphabet, fa_empty.start_state, fa_empty.final_states)
+# saving_fa_transitions(fa_empty.id, fa_empty.transitions) 
+
+# full_fa must be equal to loading_fa(list) + transitions(list) 
+# full_fa = loading_fa + [transitions]
+# result full_fa = [
+#     id,
+#     ...
+#     [
+#         ('q0', '1', 'q2')
+#     ]    
+# ]
