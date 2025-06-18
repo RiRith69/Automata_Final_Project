@@ -8,16 +8,18 @@ import os
 # Get absolute path to project root and add to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import streamlit as st
+
 # from components.Temp_storage import FiniteAutomaton
 # from pages.DFA_NFA import check
-
+st.set_page_config(page_title="FA Designer", layout="wide")
 
 from components.Fa_model import FiniteAutomaton
 from components.FA_database import FADatabaseHandler
+from components.is_login import is_logged_in
 
+is_logged_in()
 class FAApp:
     def __init__(self):
-        st.set_page_config(page_title="FA Designer", layout="wide")
         st.title("⚙️ Finite Automaton Designer")
 
         self.fa_db = FADatabaseHandler()

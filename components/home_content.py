@@ -10,11 +10,16 @@ def show_home():
 
     with col2:
         if st.button("🎨 Design Finite Automata", use_container_width=True) :
-            st.switch_page("Design FA")
+            st.switch_page("pages/Design_FA.py")
         
         if st.button("🔍 Check type of FA", use_container_width=True) :
+            st.switch_page("pages/Check_FA.py")
 
-            st.switch_page("DFA NFA.py")
-        st.button("🧪 Test FA wtih a string", use_container_width=True, key="test_btn", on_click=lambda: st.session_state.update(page="Test FA wtih a string"))
-        st.button("🔁 Convert NFA to DFA", use_container_width=True, key="convert_btn", on_click=lambda: st.session_state.update(page="Convert NFA to DFA"))
-        st.button("🔽 Minimize DFA", use_container_width=True, key="minimize_btn", on_click=lambda: st.session_state.update(page="Minimize DFA"))
+        if st.button("🧪 Test FA wtih a string", use_container_width=True) :
+            st.switch_page("pages/Test_FA.py")
+
+        if st.button("🔁 Convert NFA to DFA", use_container_width=True) :
+            st.switch_page("pages/Convert_FA.py")
+
+        if st.button("🔽 Minimize DFA", use_container_width=True) :
+            st.switch_page("pages/Minimize_DFA")

@@ -9,6 +9,9 @@ import streamlit as st
 
 from components.FA_database import FADatabaseHandler
 from components.Fa_model import FiniteAutomaton
+from components.is_login import is_logged_in
+
+is_logged_in()
 
 def main():
     st.title("🔍 FA Type Checker")

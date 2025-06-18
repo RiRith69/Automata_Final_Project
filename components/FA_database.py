@@ -140,7 +140,3 @@ class FADatabaseHandler:
         finally:
             cursor.close()
             conn.close()
-
-class UserHandler:
-    def save_user(self) :
-        pass
