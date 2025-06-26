@@ -2,13 +2,13 @@ import psycopg2
 
 # database info
 host = 'localhost'
-database = 'automata_db'
-username = 'postgres'
-pw = '$@7#Y@'
+database = 'finite_automata'
+username = 'team_leader'
+pw = 'TL0123'
 port_id = 5432
 
 # Connect to database
-def db_connection() :
+def get_db_connection() :
     try :
         connection = psycopg2.connect(
             host = host,

@@ -23,6 +23,7 @@ def login_form():
             if bcrypt.checkpw(password.encode('utf-8'), password_hashed.encode('utf-8')) :
                 st.session_state.logged_in = True
                 st.session_state.username = username
+                st.session_state.user_id = user_record[0]
                 st.success("✅ Login successful!")
                 st.rerun()
             else :
@@ -54,7 +55,7 @@ def register_form():
             has_special = any(c in "!@#$%^&*()*+-" for c in new_pass)
 
             if has_upper and has_lower and has_digit and has_special:
-                user_handler.add_user(new_user, new_pass, new_recovery)
+                user_id = user_handler.add_user(new_user, new_pass, new_recovery)
                 st.success("✅ Registered successfully. Please log in.")
             else:
                 st.error("❌ Password must include uppercase, lowercase, digit, and special character.")

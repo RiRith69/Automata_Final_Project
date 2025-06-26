@@ -1,6 +1,6 @@
 import bcrypt
 import streamlit as st
-from .db_connection import db_connection
+from .db_connection import get_db_connection
 from .User_model import User
 
 class UserHandling:
@@ -8,7 +8,7 @@ class UserHandling:
         pass
 
     def add_user(self, username, password, recovery = None):
-        connector = db_connection()
+        connector = get_db_connection()
         if connector is None:
             return
 
@@ -39,7 +39,7 @@ class UserHandling:
             connector.close()
 
     def load_users(self):
-        connector = db_connection()
+        connector = get_db_connection()
         if connector is None:
             return []
 
@@ -58,7 +58,7 @@ class UserHandling:
             connector.close()
 
     def get_user(self, username):
-        connector = db_connection()
+        connector = get_db_connection()
         if connector is None:
             return None
 

@@ -23,5 +23,14 @@ create table transitions (
 	to_states text[]
 );
 
+select * from users;
 select * from finite_automata;
+DELETE FROM finite_automata 
+WHERE name like '%_DFA';
+
 select * from transitions;
+
+select t.* from transitions t
+join finite_automata fa using (fa_id)
+	where t.fa_id = 31;
+

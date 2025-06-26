@@ -1,37 +1,30 @@
-# work
-
-
-# app.py
 import sys
 import os
-
-# Get absolute path to project root and add to sys.path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import streamlit as st
+from components.Fa_model import FiniteAutomaton
+from components.is_login import is_logged_in
+from collections import defaultdict
 
-# from components.Temp_storage import FiniteAutomaton
-# from pages.DFA_NFA import check
+# Configure the app
 st.set_page_config(page_title="FA Designer", layout="wide")
 
-from components.Fa_model import FiniteAutomaton
-from components.FA_database import FADatabaseHandler
-from components.is_login import is_logged_in
-
-is_logged_in()
 class FAApp:
     def __init__(self):
         st.title("⚙️ Finite Automaton Designer")
-
-        self.fa_db = FADatabaseHandler()
         self.fa = None
+        self.state_list = []
+        self.alphabet_list = []
 
     def define_components(self):
+        """Collect basic FA components from user"""
         st.header("1. Define FA Components")
+        
+        # Input fields with default values
         self.fa_name = st.text_input("Name your FA:")
-        self.fa_type = None
-        states = st.text_input("Enter states (e.g., q0,q1,q2):")
-        alphabet = st.text_input("Enter alphabet (e.g., a,b,ε):")
-
+        states = st.text_input("Enter states (comma separated. eg, q0, q1):")
+        alphabet = st.text_input("Enter alphabet (comma separated. eg, 0, 1):")
+        
+        # Process inputs
         if self.fa_name and states and alphabet:
             self.state_list = [s.strip() for s in states.split(",") if s.strip()]
             self.alphabet_list = [a.strip() for a in alphabet.split(",") if a.strip()]
@@ -40,52 +33,126 @@ class FAApp:
                 self.start_state = st.selectbox("Start State:", self.state_list)
                 self.final_states = st.multiselect("Final States:", self.state_list)
                 return True
-            else:
-                st.warning("Please enter at least one state and one alphabet symbol.")
-        else:
-            st.info("Please provide FA name, states, and alphabet to proceed.")
+        
+        st.warning("Please complete all fields to proceed")
         return False
 
     def define_transitions(self):
+        """Collect transition function from user"""
         st.subheader("2. Define Transitions")
-        transitions = {}
-
+        st.markdown("**Note:** Use 'e' for epsilon transitions")
+        
+        transitions = defaultdict(lambda: defaultdict(list))
+        has_epsilon = False
+        
+        # Add epsilon temporarily for transition definition
+        full_alphabet = self.alphabet_list + ['e']
+        
+        # Create columns for each symbol
+        cols = st.columns(len(full_alphabet))
+        
         for state in self.state_list:
-            transitions[state] = {}
-            for symbol in self.alphabet_list:
-                key = f"{state}_{symbol}"
-                selected = st.multiselect(f"δ({state}, {symbol}) =", self.state_list, key=key)
-                transitions[state][symbol] = selected
+            with st.expander(f"**{state} Transitions**") :
+                transitions[state] = {}
+                cols = st.columns(len(full_alphabet))
+                for i, symbol in enumerate(full_alphabet):
+                    with cols[i]:
+                        selected = st.multiselect(
+                            f"δ({state}, {symbol})",
+                            self.state_list,
+                            key=f"trans_{state}_{symbol}"
+                        )
+                        if selected:
+                            transitions[state][symbol] = selected
+                            if symbol == 'e':
+                                has_epsilon = True
+        
+        # Determine FA type
+        is_dfa = True
+        for state in self.state_list:
+            for symbol in self.alphabet_list:  # Only check non-epsilon symbols
+                if len(transitions[state].get(symbol, [])) != 1:
+                    is_dfa = False
+                    break
+        
+        self.fa_type = "DFA" if is_dfa and not has_epsilon else "NFA"
+        
+        # Create the FA instance
+        try:
+            self.fa = FiniteAutomaton(
+                name=self.fa_name,
+                states=self.state_list,
+                alphabet=self.alphabet_list,  # Without epsilon
+                start_state=self.start_state,
+                final_states=self.final_states,
+                transitions=dict(transitions),
+                fa_type=self.fa_type
+            )
+            
+            # Show FA type feedback
+            if has_epsilon:
+                st.warning("⚠️ This is an NFA (contains epsilon transitions)")
+            elif not is_dfa:
+                st.warning("⚠️ This is an NFA (non-deterministic transitions)")
+            else:
+                st.success("✓ This is a DFA")
+                
+            return True
+            
+        except Exception as e:
+            st.error(f"Error creating FA: {str(e)}")
+            return False
 
-        self.fa = FiniteAutomaton(
-            self.fa_name,
-            self.fa_type,
-            self.state_list,
-            self.alphabet_list,
-            self.start_state,
-            self.final_states,
-            transitions
-        )
+    def save_fa_to_db(self):
+        """Handle database saving with proper error checking"""
+        if not self.fa:
+            st.error("No FA to save")
+            return None
+        
+        try:
+            # Ensure we have a valid user ID
+            if not hasattr(st.session_state, 'user_id'):
+                st.error("User not authenticated")
+                return None
+                
+            fa_id = self.fa.save_to_db(st.session_state.user_id)
+            if fa_id:
+                st.success(f"FA '{self.fa.name}' saved successfully with ID: {fa_id}")
+                return fa_id
+            else:
+                st.error("Failed to save FA (no ID returned)")
+                return None
+                
+        except Exception as e:
+            st.error(f"Database error: {str(e)}")
+            return None
 
     def display_summary(self):
+        """Display FA summary and handle saving"""
         st.subheader("3. FA Summary")
-        st.text(self.fa.display_FA())
-
+        
+        if not self.fa:
+            st.error("No FA to display")
+            return
+            
+        # Display FA properties
+        st.code(self.fa.display_FA(), language='markdown')
+        # Save button
         if st.button("💾 Save FA"):
-            user_id = 1  # Replace with real user ID
-            fa_id = self.fa_db.save_fa(self.fa, user_id)
-            if fa_id:
-                self.fa_db.save_transitions(fa_id, self.fa.transitions)
-                st.success(f"FA '{self.fa_name}' saved successfully!")
-            else:
-                st.error("Failed to save FA.")
+            self.save_fa_to_db()
 
     def run(self):
+        """Main application flow"""
+        if not st.session_state.get("logged_in"):
+            st.error("⚠️ Please log in to access the FA Designer")
+            return
+            
         if self.define_components():
-            self.define_transitions()
-            self.display_summary()
+            if self.define_transitions():
+                self.display_summary()
 
-
+# Run the app
 if __name__ == "__main__":
+    is_logged_in()  # Check authentication
     app = FAApp()
     app.run()

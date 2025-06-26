@@ -27,13 +27,6 @@
 #     ]
 # )
 
-# # Call to save the FA metadata:
-# # saving_fa(fa_on_off.name, fa_on_off.states, fa_on_off.alphabet, fa_on_off.start_state, fa_on_off.final_states)
-# # saving_fa_transitions(2, fa_on_off.transitions) 
-
-
-# saving_fa(fa_even_zeros.name, fa_even_zeros.states, fa_even_zeros.alphabet, fa_even_zeros.start_state, fa_even_zeros.final_states)
-# saving_fa_transitions(fa_even_zeros.id, fa_even_zeros.transitions) 
 
 fa_ends_11 = FiniteAutomaton(
     id=fa_id,
@@ -52,8 +45,6 @@ fa_ends_11 = FiniteAutomaton(
     ]
 )
 
-saving_fa(fa_ends_11.name, fa_ends_11.states, fa_ends_11.alphabet, fa_ends_11.start_state, fa_ends_11.final_states)
-saving_fa_transitions(fa_ends_11.id, fa_ends_11.transitions) 
 
 # fa_password = FiniteAutomaton(
 #     id= fa_id,
@@ -71,9 +62,6 @@ saving_fa_transitions(fa_ends_11.id, fa_ends_11.transitions)
 #         ['unlocked', 'b', 'locked']
 #     ]
 # )
-
-# saving_fa(fa_password.name, fa_password.states, fa_password.alphabet, fa_password.start_state, fa_password.final_states)
-# saving_fa_transitions(fa_password.id, fa_password.transitions) 
 
 # fa_triple_ones = FiniteAutomaton(
 #     id=5,
@@ -106,9 +94,6 @@ saving_fa_transitions(fa_ends_11.id, fa_ends_11.transitions)
 #     final_states=['q0'],
 #     transitions=[]
 # )
-
-# saving_fa(fa_empty.name, fa_empty.states, fa_empty.alphabet, fa_empty.start_state, fa_empty.final_states)
-# saving_fa_transitions(fa_empty.id, fa_empty.transitions) 
 
 # full_fa must be equal to loading_fa(list) + transitions(list) 
 # full_fa = loading_fa + [transitions]

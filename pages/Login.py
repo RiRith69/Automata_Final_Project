@@ -23,10 +23,13 @@ if "username" not in st.session_state:
 # If logged in, show welcome
 if st.session_state.logged_in:
     st.success(f"👋 Welcome, {st.session_state.username}!")
+    if st.button("Home Page") :
+        st.switch_page("Home.py")
     if st.button("Logout"):
         st.session_state.logged_in = False
         st.session_state.username = ""
-        st.switch_page("Home")
+        st.session_state.user_id = 0
+        st.switch_page("Home.py")
         st.rerun()
 else:
     # Navigation UI

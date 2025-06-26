@@ -22,4 +22,4 @@ def show_home():
             st.switch_page("pages/Convert_FA.py")
 
         if st.button("🔽 Minimize DFA", use_container_width=True) :
-            st.switch_page("pages/Minimize_DFA")
+            st.switch_page("pages/Minimize_DFA.py")

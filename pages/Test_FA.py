@@ -9,7 +9,12 @@ from components.FA_database import FADatabaseHandler
 from components.Fa_model import FiniteAutomaton
 from components.is_login import is_logged_in
 
+st.set_page_config(page_title="FA Player", layout="wide")
 is_logged_in()
+
+if st.session_state.get("logged_in"):
+    user_id = st.session_state.user_id
+
 
 def main():
     st.title("🧪 FA String Tester")
@@ -22,30 +27,52 @@ def main():
         st.info("⚠️ You don't have any FA saved. Please design one first.")
         st.stop()
 
-    fa_name_options = [fa[0] for fa in fa_names]
-    selected_fa_name = st.selectbox("Select a Finite Automaton:", fa_name_options)
+    fa_name_options = [fa[1] for fa in fa_names]
+    selected_fa = st.selectbox("Select a Finite Automaton:", fa_name_options)
 
-    fa_data = manager.load_fa_by_name(selected_fa_name)
 
     test_string = st.text_input("Enter a string to test:")
-
-    fa = FiniteAutomaton(**fa_data)  # Requires fa_data to be a matching dict
-    fa.display_FA()
-    if st.button("Test String") :
-        if test_string == "" :
-            st.warning("Please enter a string to test ⚠️")
-        else :
-            fa.is_accepted_dfa(test_string)
-            if fa.fa_type == "DFA":
-                if fa.is_accepted_dfa(test_string) :
-                    st.success(f"The FA '{selected_fa_name}' is **accpet** input string ✅")
-                else:
-                    st.warning(f"The FA '{selected_fa_name}' is **reject** input string ⚠️")
+    fa = FiniteAutomaton.load_from_db(selected_fa)
+    if fa :
+        # Show transition table
+        st.subheader("Transition Table")
+        trans_table = []
+        for state in fa.states:
+            for symbol in fa.alphabet:
+                to_states = str(fa.transitions.get(state, {}).get(symbol, []))
+                to_state_str = to_states.replace("[", "").replace("]", " ").replace("'", "")
+                    
+                if state == fa.start_state :
+                    trans_table.append({
+                        "From State": '-->\t' + state,
+                        "Symbol": symbol,
+                        "To State": to_state_str
+                    })
+                elif state in fa.final_states :
+                    trans_table.append({
+                        "From State": '*' + state,
+                        "Symbol": symbol,
+                        "To State": to_state_str
+                    })
+                else :
+                    trans_table.append({
+                        "From State": state,
+                        "Symbol": symbol,
+                        "To State": to_state_str
+                    })
+        st.table(trans_table)
+        
+        if st.button("Test String") :
+            if test_string == "" :
+                st.warning("Please enter a string to test ⚠️")
+            elif any(s not in fa.alphabet for s in test_string) :
+                st.warning("Invalid string")
             else :
-                if fa.is_accepted_nfa(test_string) :
-                    st.success(f"The FA '{selected_fa_name}' is **accpet** input string ✅")
+                checked = fa.test_fa(test_string)
+                if checked :
+                    st.success(f"The FA '{selected_fa}' is **accpet** input string ✅")
                 else:
-                    st.warning(f"The FA '{selected_fa_name}' is **reject** input string ⚠️")
+                    st.warning(f"The FA '{selected_fa}' is **reject** input string ⚠️")
     else:
         st.error(f"Invalid FA")
 
