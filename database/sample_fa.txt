@@ -1,4 +1,4 @@
-# Define your FA data first:
+
 # fa_on_off = FiniteAutomaton(
 #     id = fa_id,
 #     name = 'off/on switch',
@@ -82,9 +82,6 @@ fa_ends_11 = FiniteAutomaton(
 #     ]
 # )
 
-# saving_fa(fa_triple_ones.name, fa_triple_ones.states, fa_triple_ones.alphabet, fa_triple_ones.start_state, fa_triple_ones.final_states)
-# saving_fa_transitions(fa_triple_ones.id, fa_triple_ones.transitions) 
-
 # fa_empty = FiniteAutomaton(
 #     id=6,
 #     name='Empty string only',
@@ -94,13 +91,3 @@ fa_ends_11 = FiniteAutomaton(
 #     final_states=['q0'],
 #     transitions=[]
 # )
-
-# full_fa must be equal to loading_fa(list) + transitions(list) 
-# full_fa = loading_fa + [transitions]
-# result full_fa = [
-#     id,
-#     ...
-#     [
-#         ('q0', '1', 'q2')
-#     ]    
-# ]
