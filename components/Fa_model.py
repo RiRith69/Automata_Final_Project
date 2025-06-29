@@ -174,108 +174,88 @@ class FiniteAutomaton:
             print(e)
 
     def minimize_dfa(self):
-    # Convert all states to strings if they aren't already
+    # Moore's algorithm minimizes a DFA by iteratively refining partitions
+
         def stringify_state(state):
             if isinstance(state, (list, set, frozenset)):
                 return ''.join(sorted(state))
             return str(state)
-        # Convert all components to use string states
+
+        # Convert states to string labels for consistency
         dfa_states = [stringify_state(s) for s in self.states]
         dfa_start = stringify_state(self.start_state)
         dfa_final = [stringify_state(s) for s in self.final_states]
-        
-        # Convert transitions to use string states
+
+        # Rewrite transitions to use string states
         dfa_transitions = {}
         for state in self.transitions:
             str_state = stringify_state(state)
             dfa_transitions[str_state] = {}
             for symbol in self.transitions[state]:
                 dfa_transitions[str_state][symbol] = stringify_state(self.transitions[state][symbol])
-        
-        # Initial partition: final and non-final states
-        P = [set(dfa_final), set(dfa_states) - set(dfa_final)]
-        W = [set(dfa_final), set(dfa_states) - set(dfa_final)]
-        
-        while W:
-            A = W.pop(0)
-            
-            for c in self.alphabet:
-                X = set()
-                # Find all states that transition into A on c
-                for state in dfa_states:
-                    if dfa_transitions.get(state, {}).get(c, None) in A:
-                        X.add(state)
-                
-                # Refine each partition with X
-                new_P = []
-                for Y in P:
-                    intersect = Y & X
-                    difference = Y - X
-                    
-                    if intersect and difference:
-                        new_P.append(intersect)
-                        new_P.append(difference)
-                        
-                        if Y in W:
-                            W.remove(Y)
-                            W.append(intersect)
-                            W.append(difference)
-                        else:
-                            if len(intersect) <= len(difference):
-                                W.append(intersect)
-                            else:
-                                W.append(difference)
-                    else:
-                        new_P.append(Y)
-                
-                P = new_P
-        
-        # Create new minimized DFA
-        state_to_partition = {}
-        for partition in P:
-            for state in partition:
-                state_to_partition[state] = partition
-        
-        # Create new states (one for each partition)
+
+        # Initial partition: final states vs non-final states
+        partitions = [set(dfa_final), set(dfa_states) - set(dfa_final)]
+
+        changed = True
+        while changed:
+            changed = False
+            new_partitions = []
+
+            for group in partitions:
+                # subdivide group if needed
+                block_map = {}
+                for state in group:
+                    # build a signature showing where transitions go
+                    signature = tuple(
+                        next(
+                            (i for i, p in enumerate(partitions) if dfa_transitions[state].get(sym) in p),
+                            None
+                        )
+                        for sym in self.alphabet
+                    )
+                    block_map.setdefault(signature, set()).add(state)
+
+                # replace with new subgroups
+                if len(block_map) > 1:
+                    changed = True
+                new_partitions.extend(block_map.values())
+
+            partitions = new_partitions
+
+        # Rebuild minimized DFA from partitions
+        partition_map = {}
         new_states = []
-        new_start_state = None
-        new_final_states = []
-        partition_to_new_state = {}
-        
-        for i, partition in enumerate(P):
-            new_state = f"m{i}"
-            partition_to_new_state[frozenset(partition)] = new_state
-            new_states.append(new_state)
-            
-            # Check if partition contains the original start state
-            if dfa_start in partition:
-                new_start_state = new_state
-            
-            # Check if partition contains any final states
-            if any(state in dfa_final for state in partition):
-                new_final_states.append(new_state)
-        
-        # Create new transitions
+        for i, block in enumerate(partitions):
+            name = f"m{i}"
+            new_states.append(name)
+            for state in block:
+                partition_map[state] = name
+
+        new_start_state = partition_map[dfa_start]
+        new_final_states = list({partition_map[s] for s in dfa_final})
+
+        # build new transitions
         new_transitions = {}
-        for partition in P:
-            representative = next(iter(partition))
-            new_state = partition_to_new_state[frozenset(partition)]
-            
+        for block in partitions:
+            representative = next(iter(block))
+            new_state = partition_map[representative]
             new_transitions[new_state] = {}
             for symbol in self.alphabet:
-                next_state = dfa_transitions[representative][symbol]
-                next_partition = state_to_partition[next_state]
-                new_transitions[new_state][symbol] = partition_to_new_state[frozenset(next_partition)]
-        
+                target = dfa_transitions[representative].get(symbol)
+                if target:
+                    new_transitions[new_state][symbol] = partition_map[target]
+
         return {
-            'name': f"{self.name} Minimized",
-            'fa_type' : self.fa_type,
-            'states': new_states,
-            'alphabet': self.alphabet,
-            'transitions': new_transitions,
-            'start_state': new_start_state,
-            'final_states': new_final_states
+            "name": f"{self.name} Minimized",
+            "fa_type": self.fa_type,
+            "states": new_states,
+            "alphabet": self.alphabet,
+            "transitions": new_transitions,
+            "start_state": new_start_state,
+            "final_states": new_final_states
         }
+
             
 
     def display_FA(self):
